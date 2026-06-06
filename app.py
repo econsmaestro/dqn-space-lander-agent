@@ -47,7 +47,11 @@ def play_lunarlander(max_steps):
         gif_path = "lunarlander_play.gif"
         frames[0].save(gif_path, save_all=True, append_images=frames[1:], duration=50, loop=0)
 
-        result = "Landed successfully!" if total_reward >= 200 else "Crashed or ran out of time."
+        # Check actual landing: both legs touching (state[6], state[7]) and near center (state[0])
+        both_legs = state[6] == 1 and state[7] == 1
+        near_center = abs(state[0]) < 0.2
+        landed = both_legs and near_center
+        result = "Landed successfully between the flags!" if landed else "Missed the landing pad or crashed."
         return gif_path, f"{result} | Total reward: {total_reward:.1f} | Steps: {len(frames)}"
     except Exception as e:
         return None, f"Error: {str(e)}"

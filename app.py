@@ -25,29 +25,32 @@ model.eval()
 
 
 def play_lunarlander(max_steps):
-    env = gym.make("LunarLander-v3", render_mode="rgb_array")
-    state, _ = env.reset()
-    frames = []
-    total_reward = 0
+    try:
+        env = gym.make("LunarLander-v3", render_mode="rgb_array")
+        state, _ = env.reset()
+        frames = []
+        total_reward = 0
 
-    for _ in range(int(max_steps)):
-        frame = env.render()
-        frames.append(Image.fromarray(frame))
-        state_t = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
-        with torch.no_grad():
-            action = int(model(state_t).argmax().item())
-        state, reward, terminated, truncated, _ = env.step(action)
-        total_reward += reward
-        if terminated or truncated:
-            break
+        for _ in range(int(max_steps)):
+            frame = env.render()
+            frames.append(Image.fromarray(frame))
+            state_t = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
+            with torch.no_grad():
+                action = int(model(state_t).argmax().item())
+            state, reward, terminated, truncated, _ = env.step(action)
+            total_reward += reward
+            if terminated or truncated:
+                break
 
-    env.close()
+        env.close()
 
-    gif_path = "lunarlander_play.gif"
-    frames[0].save(gif_path, save_all=True, append_images=frames[1:], duration=50, loop=0)
+        gif_path = "lunarlander_play.gif"
+        frames[0].save(gif_path, save_all=True, append_images=frames[1:], duration=50, loop=0)
 
-    result = "Landed successfully!" if total_reward >= 200 else "Crashed or ran out of time."
-    return gif_path, f"{result} | Total reward: {total_reward:.1f} | Steps: {len(frames)}"
+        result = "Landed successfully!" if total_reward >= 200 else "Crashed or ran out of time."
+        return gif_path, f"{result} | Total reward: {total_reward:.1f} | Steps: {len(frames)}"
+    except Exception as e:
+        return None, f"Error: {str(e)}"
 
 
 demo = gr.Interface(
@@ -62,4 +65,4 @@ demo = gr.Interface(
 )
 
 if __name__ == "__main__":
-    demo.launch(server_port=7864)
+    demo.launch()

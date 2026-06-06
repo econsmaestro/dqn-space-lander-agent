@@ -1,0 +1,6 @@
+torch
+gymnasium[box2d]
+gradio
+Pillow
+numpy
+swig
